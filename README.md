@@ -11,27 +11,37 @@ npm run dev
 
 Acesse [http://localhost:3000](http://localhost:3000).
 
-## Deploy no EasyPanel (Hostinger)
+## Deploy no EasyPanel (Hostinger) — inclusive modo caixa/box
 
-1. **Crie um projeto** no EasyPanel e adicione um serviço do tipo **App**.
+Funciona no EasyPanel instalado no VPS da Hostinger (template “caixa”/box com EasyPanel pré-instalado).
 
-2. **Conecte o repositório**  
-   Configure a origem (Git/GitHub) com o repositório deste projeto.
+### Passo a passo
 
-3. **Método de build**  
-   Na aba **Build**:
-   - **Dockerfile**: escolha "Dockerfile" e use o caminho `Dockerfile` (raiz do repositório).
-   - **Nixpacks**: também funciona; o EasyPanel detecta Node.js e faz o build automaticamente.
+1. **Crie um projeto** no EasyPanel e adicione um serviço do tipo **App** (não use template de outro app; use “App” e seu próprio código).
 
-4. **Porta**  
-   O app expõe a porta **3000**. No EasyPanel, use essa porta no serviço.
+2. **Source**  
+   Conecte o repositório Git/GitHub deste projeto.
 
-5. **Deploy**  
-   Clique em **Deploy**. O app ficará disponível na URL pública gerada pelo EasyPanel.
+3. **Build**  
+   Na aba **Build**, escolha **Dockerfile** e deixe o caminho como `Dockerfile` (raiz do repositório). Depois clique em **Deploy** e espere o build terminar.
+
+4. **Domains & Proxy (obrigatório para o domínio funcionar)**  
+   - Abra a aba **Domains & Proxy** do serviço.
+   - Adicione um domínio (ex.: o que o EasyPanel sugere, tipo `n8n-fila-teste10.cr61qk.easypanel.host`, ou o seu próprio).
+   - **Defina a porta do proxy como `3000`.**  
+     Essa é a porta em que o Next.js escuta dentro do container. Se a porta do proxy não for **3000**, o EasyPanel não encaminha o tráfego para o app e o domínio fica em branco ou com erro.
+
+5. Salve e aguarde o deploy. Acesse o domínio (HTTPS) que você configurou.
+
+### Se ainda não rodar
+
+- **Logs**: na aba **Logs** do serviço, veja se o container sobe sem erro e se aparece algo como “Ready on http://0.0.0.0:3000”.
+- **Porta do proxy**: confirme de novo em **Domains & Proxy** que está **3000**.
+- **Reinício**: altere algo (ex.: uma variável de ambiente), salve e dê **Deploy** de novo.
 
 ### Variáveis de ambiente (opcional)
 
-Na aba **Environment** do serviço você pode definir, por exemplo:
+Na aba **Environment** pode definir, por exemplo:
 
 - `NODE_ENV=production` (já definido no Dockerfile)
 
