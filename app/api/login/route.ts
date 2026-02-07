@@ -26,24 +26,18 @@ export async function POST(request: NextRequest) {
       `${LOGIN_API_USER}:${LOGIN_API_PASSWORD}`
     ).toString('base64')
 
-    const params = new URLSearchParams({
-      tpOperacao: 'LOGIN',
-      user,
-      password,
-    })
-    const url = `${LOGIN_API_URL}?${params.toString()}`
-
-    console.log('[Login API] Envio para o webhook:', {
-      method: 'GET',
-      url: LOGIN_API_URL,
-      query: { tpOperacao: 'LOGIN', user, password },
-    })
-
-    const res = await fetch(url, {
-      method: 'GET',
+    const res = await fetch(LOGIN_API_URL, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Basic ${credentials}`,
+        'User-Agent': 'PostmanRuntime/7.32.3',
       },
+      body: JSON.stringify({
+        tpOperacao: 'LOGIN',
+        user,
+        password,
+      }),
       cache: 'no-store',
     })
 
