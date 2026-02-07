@@ -4,31 +4,52 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-const PHONE_VALID = '96552057'
-const PASSWORD_VALID = 'admin'
-
 export default function LoginPage() {
   const router = useRouter()
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setLoading(true)
 
-    const phoneClean = phone.replace(/\D/g, '')
-    if (phoneClean !== PHONE_VALID || password !== PASSWORD_VALID) {
-      setError('Telefone ou senha incorretos. Tente novamente.')
-      return
+    try {
+      const user = phone.replace(/\D/g, '').trim()
+      if (!user) {
+        setError('Informe o telefone.')
+        return
+      }
+
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user, password }),
+      })
+
+      const data = (await res.json()) as { ok: boolean; msg: string }
+
+      if (data.ok) {
+        router.push('/home')
+        return
+      }
+
+      setError(data.msg || 'Usuário ou senha inválidos.')
+    } catch {
+      setError('Erro ao conectar. Tente novamente.')
+    } finally {
+      setLoading(false)
     }
-
-    router.push('/home')
   }
 
   return (
     <main className="login-page">
       <div className="login-card">
+        <div className="login-logo" aria-hidden>
+          <img src="/logo.png" alt="" />
+        </div>
         <div className="login-header">
           <h1>Entrar</h1>
           <p>Informe seu telefone e senha para acessar o sistema</p>
@@ -47,10 +68,11 @@ export default function LoginPage() {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Ex: 96552057"
+              placeholder="Ex: 554797934627"
               className="login-input"
               autoComplete="tel"
               required
+              disabled={loading}
             />
           </label>
 
@@ -64,6 +86,7 @@ export default function LoginPage() {
               className="login-input"
               autoComplete="current-password"
               required
+              disabled={loading}
             />
           </label>
 
@@ -71,8 +94,8 @@ export default function LoginPage() {
             Esqueci minha senha
           </Link>
 
-          <button type="submit" className="login-button">
-            Entrar
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
       </div>
